@@ -58,10 +58,10 @@ public class RequirementCoverageOverview
 			@Attribute public String contentType;
 			@Attribute public String shortdescription;
 			@Attribute public String text;
-			@Attribute public String linkedtests;
-			@Attribute public String notexecutedtests;
-			@Attribute public String passedtests;
-			@Attribute public String failedtests;
+			@Attribute public int linkedtests;
+			@Attribute public int notexecutedtests;
+			@Attribute public int passedtests;
+			@Attribute public int failedtests;
 			@Attribute public String state;
 	
 			@ElementList public List<Testcase> testcases;
@@ -74,22 +74,61 @@ public class RequirementCoverageOverview
 
 				//TODO : Here's still stuff to do.
 				sw.write("<tr>");
-				sw.write("<td class=\"fieldname\">@reqf{" + shortdescription + "}</td>\n");
+				sw.write("<td class=\"fieldname\">" + shortdescription + "</td>\n");
 				sw.write(getStateDescr(state));
-				sw.write("<td class=\"fieldname\" align=\"right\">" + linkedtests       + "</td>\n");
-				sw.write("<td class=\"fieldname\" align=\"right\">" + passedtests	    + "</td>\n");          
-				sw.write("<td class=\"fieldname\" align=\"right\">" + failedtests       + "</td>\n");
-				sw.write("<td class=\"fieldname\" align=\"right\">" + notexecutedtests  + "</td>\n");
+				sw.write("<td class=\"fieldname\" " + getPassed(passedtests) + "align=\"right\">" + passedtests	    + "</td>\n");          
+				sw.write("<td class=\"fieldname\" " + getFailed(failedtests) + "align=\"right\">" + failedtests       + "</td>\n");
+				sw.write("<td class=\"fieldname\" " + getNotExe(notexecutedtests) + "align=\"right\">" + notexecutedtests  + "</td>\n");
+				sw.write("<td class=\"fieldname\" " + getLinked(linkedtests) + "align=\"right\">" + linkedtests       + "</td>\n");
 				sw.write("</tr>\n");
 				
 				return sw.toString();
 			}
+			
+			static String getLinked(int i)
+			{
+				if (i == 0)
+					return " bgcolor=\"#3399FF\" ";
+				else 
+					return "";
+			}
+			static String getPassed(int i)
+			{
+				if (i != 0)
+					return " bgcolor=\"#00FF00\" ";
+				else 
+					return " bgcolor=\"#FF0000\" ";
+			}
+			static String getFailed(int i)
+			{
+				if (i == 0)
+					return " bgcolor=\"#00FF00\" ";
+				else 
+					return " bgcolor=\"#FF0000\" ";
+			}
+			
+			static String getNotExe(int i)
+			{
+				if (i != 0)
+					return " bgcolor=\"#3399FF\" ";
+				else 
+					return "";
+			}
+			
 			static String getStateDescr(String abbr)
 			{
 				if (abbr.compareTo("UNLINKED") == 0)
-				{
 					return "<td class=\"fieldname\" align=\"right\" bgcolor=\"#FF0000\">No Tests available</td>\n";
-				}
+				else if (abbr.compareTo("NONE_EXECUTED") == 0)
+					return "<td class=\"fieldname\" align=\"right\" bgcolor=\"#3399FF\">No Tests available</td>\n";
+				else if (abbr.compareTo("SOME_PASSED_OR_FAILED") == 0)
+					return "<td class=\"fieldname\" align=\"right\" bgcolor=\"#8F0000\">No Tests available</td>\n";
+				else if (abbr.compareTo("SOME_PASSED") == 0)
+					return "<td class=\"fieldname\" align=\"right\" bgcolor=\"#008F00\">No Tests available</td>\n";
+				else if (abbr.compareTo("ALL_PASSED_OR_FAILED") == 0)
+					return "<td class=\"fieldname\" align=\"right\" bgcolor=\"#FF0000\">No Tests available</td>\n";
+				else if (abbr.compareTo("ALL_PASSED") == 0)
+					return "<td class=\"fieldname\" align=\"right\" bgcolor=\"#00FF00\">No Tests available</td>\n";
 				else
 					return abbr;
 			}
@@ -157,7 +196,8 @@ public class RequirementCoverageOverview
 		fw.write("/**");
 		fw.write("@page " + info.projectname + "\n\n");
 		
-
+		fw.write("@section reqOvw Requirement Overview Report\n");
+		
 		fw.write(getInfo());
 		
 		

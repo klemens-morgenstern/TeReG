@@ -35,6 +35,9 @@ public class DetailsReportXml
 		@Element(required=false) public String cte_file;
 		@ElementList(required=false) public List<Cte_Node> cte_data;
 	
+		@ElementList(required=false) public List<Coverage> coverage;
+		@ElementList(required=false) public List<Requirement> requirements;
+		
 		@Root static public class Cte_Node
 		{
 			@Attribute public int id;
@@ -93,6 +96,16 @@ public class DetailsReportXml
 			@Attribute public String notok_list;
 			@Attribute public String notexecuted;
 			@Attribute public String notexecuted_list;
+		}
+		
+		@Root static public class Coverage
+		{
+			@Attribute public String name; 
+			@Attribute public String success; 
+			@Attribute public double total; 
+			@Attribute public double reached; 
+			@Attribute public double notreached; 
+			@Attribute public double percentage;
 		}
 	}
 	
@@ -261,6 +274,7 @@ public class DetailsReportXml
 			@ElementList(required=false) public List<Parm> parms;
 			@ElementList(required=false) public List<Var> vars;
 			@Attribute(required=false) public String cpl;
+			
 			@Root static public class Ret 
 			{
 				@Attribute public String id;
@@ -270,17 +284,31 @@ public class DetailsReportXml
 				@Attribute(required=false) public String tmd;
 				@Attribute(required=false) public String trf;
 				@ElementList(required=false, inline=true) public List<Comp> comp;
-				@Element(required=false) public Parm.ParmType type;
+				@Element(required=false) public Type type;
+				@Attribute(required=false) public String df;
+		}
+			@Root static public class Comp
+			{
+				@Attribute public int id;
+				@Attribute(required=false) public int ips;
+				@Attribute(required=false) public int pas;
+				@ElementList(required=false, inline=true) List<Comp> comp;
+				@Element(required=false) public Type type;
+				@Attribute(required=false) public String df;
 
-				@Root static public class Comp
-				{
-					@Attribute public int id;
-					@Attribute public int ips;
-					@Attribute public int pas;
-					@ElementList(required=false, inline=true) List<Comp> comp;
-
-				}
-
+			}
+			@Root static public class Type
+			{
+				@Attribute(required=false) public String tc;
+				@Attribute(required=false) public String trf;
+				@Attribute(required=false) public String pas;
+				@Attribute(required=false) public String ips;
+				@Attribute(required=false) public String scp;
+				@Attribute(required=false) public String tmd;
+				@Element(required=false) public Fpr fpr;
+				@Element(required=false) public Fpp fpp;
+				@ElementList(required=false, inline=true) public List<Comp> comp;
+				
 			}
 			@Root static public class Call 
 			{
@@ -301,32 +329,8 @@ public class DetailsReportXml
 				@Attribute(required=false) public String hix;
 				@Attribute(required=false) public String lox;
 				@Attribute(required=false) public String siz;
-				@Element(required=false) public ParmType type;
-
-
-
-				@Root static public class ParmType
-				{
-					@Attribute(required=false) public String tc;
-					@Attribute(required=false) public String trf;
-					@Attribute(required=false) public String pas;
-					@Attribute(required=false) public String ips;
-					@Attribute(required=false) public String scp;
-					@Attribute(required=false) public String tmd;
-					@Element(required=false) public Fpr fpr;
-					@Element(required=false) public Fpp fpp;
-					@ElementList(required=false, inline=true) public List<Comp> comp;
-					
-					@Root static public class Comp
-					{
-						@Attribute public int id;
-						@Attribute(required=false) public int ips;
-						@Attribute(required=false) public int pas;
-						@ElementList(required=false, inline=true) List<Comp> comp;
-						@Element(required=false) public ParmType type;
-
-					}
-				}
+				@Attribute(required=false) public String df;
+				@Element(required=false) public Type type;
 			}
 			@Root static public class Var 
 			{
@@ -336,31 +340,8 @@ public class DetailsReportXml
 				@Attribute public String scp;
 				@Attribute(required=false) public String crf;
 				@ElementList(required=false, inline=true) public List<Comp> comp;
-				@Element(required=false) public VarType type;
+				@Element(required=false) public Type type;
 
-				@Root static public class Comp
-				{
-					@Attribute public int id;
-					@Attribute(required=false) public int ips;
-					@Attribute(required=false) public int pas;
-					@ElementList(inline=true, required=false) public List<Comp> comp;
-					@Element(required=false)  public VarType type; 
-				
-				}
-				@Root static public class VarType
-				{
-					@Attribute(required=false) public String tc;
-					@Attribute(required=false) public String trf;
-					@Attribute(required=false) public String pas;
-					@Attribute(required=false) public String ips;
-					@Attribute(required=false) public String scp;
-
-					@Element(required=false) public Fpr fpr;
-					@Element(required=false) public Fpp fpp;
-					@ElementList(required=false, inline=true) public List<Comp> comp;
-
-
-				}
 			}
 		}
 	}
@@ -395,17 +376,21 @@ public class DetailsReportXml
 		@Attribute public String name;
 		@Attribute public String value;
 	}
-	@Root static public class Module {}
+	@Root static public class Module 
+	{
+		@ElementList(required=false) public List<Requirement> requirements;
+	}
 	@Root static public class Usercode
 	{
 		@ElementList public List<Stub> stubs;
 		
-		@Root static public class Stub
-		{
-			@Attribute public String name;
-			@Attribute public String head;
-			@Attribute public String body;
-		}
+
+	}
+	@Root static public class Stub
+	{
+		@Attribute public String name;
+		@Attribute public String head;
+		@Attribute public String body;
 	}
 	
 	@Root static public class Testobject
@@ -413,13 +398,8 @@ public class DetailsReportXml
 		@Attribute public String success;
 		@ElementList(inline=true, required=false) public List<Testcase> testcase;
 		@ElementList(required=false) public List<Stub> stubs;
-		
-		@Root static public class Stub
-		{
-			@Attribute public String name;
-			@Attribute public String head;
-			@Attribute public String body;
-		}
+		@ElementList(required=false) public List<Requirement> requirements;
+
 		
 		@Root static public class Testcase
 		{
@@ -433,7 +413,9 @@ public class DetailsReportXml
 			@Attribute(required=false) public String evalmacro_success;
 			@Attribute(required=false) public String specification;
 			
-			@ElementList(inline=true) public List<Teststep> teststep; 
+			@ElementList(inline=true) public List<Teststep> teststep;
+			@ElementList(required=false) public List<Requirement> requirements;
+
 		}
 		@Root static public class Teststep
 		{
@@ -454,6 +436,7 @@ public class DetailsReportXml
 			
 			@Element(required=false) public Prologs_Epilogs prologs_epilogs;
 			@ElementList(required=false) public List<Stub> stubs;
+			@ElementList(required=false) public List<Requirement> requirements;
 
 			@Root static public class Call_Trace 
 			{
@@ -506,8 +489,6 @@ public class DetailsReportXml
 					@Attribute public String text;
 				}
 			}
-
-
 		}
 	}
 	@Root static public class Fpr
@@ -519,5 +500,18 @@ public class DetailsReportXml
 		@Attribute(required=false) public String nam;
 		@Attribute(required=false) public String tc;
 		@Attribute(required=false) public String tmd;
+	}
+	@Root static public class Requirement
+	{
+		@Attribute public String doc_name;
+		@Attribute public String doc_alias;
+		@Attribute public String content_type;
+		@Attribute public String identifier;
+		@Attribute public String id;
+		@Attribute public String version; 
+		@Attribute public String minor_version;
+		@Attribute(name="short") public String _short;
+		@Attribute public String text;
+		@Attribute public String order_no;
 	}
 }

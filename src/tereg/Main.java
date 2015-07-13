@@ -5,6 +5,7 @@ import java.io.File;
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
 
+import tereg.Review.ReviewIssue;
 import tereg.graph.PassBar;
 import tereg.graph.PassPie;
 import tereg.graph.ReqPie;
@@ -33,9 +34,9 @@ public class Main {
 		
 		serializer.read(reqOvw, new File("F:\\edspace\\TeReG\\report\\TESSY_RequirementExecutionCoverageOverview.xml"));
 		
-		reqOvw.writeDox("out/dings.dox");
+		reqOvw.writeDox("out/dingsda.dox");
 		
-		/*serializer.read(details, new File("F:\\edspace\\TeReG\\report\\Customer\\TESSY_DetailsReport_CustInterfaceCif_CommInit.xml"));
+		serializer.read(details, new File("F:\\edspace\\TeReG\\report\\Customer\\TESSY_DetailsReport_CustInterfaceCif_CommInit.xml"));
 		serializer.read(details, new File("F:\\edspace\\TeReG\\report\\Customer\\TESSY_DetailsReport_CustInterfaceCif_CustomerComm.xml"));
 		serializer.read(details, new File("F:\\edspace\\TeReG\\report\\Customer\\TESSY_DetailsReport_CustInterfaceCif_CustomerInit.xml"));
 		serializer.read(details, new File("F:\\edspace\\TeReG\\report\\Customer\\TESSY_DetailsReport_CustInterfaceCif_CustomerMain.xml"));
@@ -231,8 +232,17 @@ public class Main {
 		serializer.read(overview, new File("F:\\edspace\\TeReG\\report\\Customer\\TESSY_OverviewReport_CustomerComm.xml"));
 		serializer.read(overview, new File("F:\\edspace\\TeReG\\report\\Customer\\TESSY_OverviewReport_CustomerInterfaceCif.xml"));
 		serializer.read(overview, new File("F:\\edspace\\TeReG\\report\\Customer\\TESSY_OverviewReport_Customer_CAN.xml"));
-*/		
-		serializer.read(details, new File("Details2.xml"));
+		
+		
+		Review insp = new Review();
+		
+		serializer.read(insp, new File("F:\\edspace\\TeReG\\report\\Inspection-KDM.review"));
+		
+		overview.writeDox("out/zeug.dox");
+		
+		insp.writeDox("out/Dings.dox", "F:\\expspace\\test\\");
+		
+		//serializer.read(details, new File("Details2.xml"));
 				
 	}
 

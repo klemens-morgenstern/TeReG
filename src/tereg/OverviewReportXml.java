@@ -1,11 +1,15 @@
 package tereg;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.List;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
+
+import tereg.RequirementCoverageOverview.Requirementdocument;
 
 @Root
 public class OverviewReportXml 
@@ -101,6 +105,8 @@ public class OverviewReportXml
 		@Element Testcase_Statistics testcase_statistics;
 		@ElementList(inline=true, required=false) List<Tessyobject> tessyobject;
 		
+		@Element(required=false) public Coverage coverage;
+		
 		@Root static public class Testcase_Statistics
 		{
 			@Attribute public String notexecuted;
@@ -111,6 +117,42 @@ public class OverviewReportXml
 		}
 		
 		
+	}
+	
+	@Root static public class Coverage
+	{
+		@Element(required=false) public CoverageEntry c0;
+		@Element(required=false) public CoverageEntry c1;
+		@Element(required=false) public CoverageEntry dc;
+		@Element(required=false) public CoverageEntry mcdc;
+		@Element(required=false) public CoverageEntry mcc;
+		@Element(required=false) public CoverageEntry epc;
+		
+		@Root static public class CoverageEntry
+		{
+			@Attribute public String success; 
+			@Attribute public double total; 
+			@Attribute public double reached; 
+			@Attribute public double notreached; 
+			@Attribute public double percentage;
+		}
+	}
+	public void writeDox(String filename) throws IOException
+	{
+		FileWriter fw = new FileWriter(filename);
+		fw.write("/**");
+		/*fw.write("@page " + info.projectname + "\n\n");
+		
+
+		fw.write(getInfo());
+		
+		
+		for (Requirementdocument doc : requirementdocuments)
+		{
+			fw.write(doc.getDox() + "\n\n");
+		}*/
+		fw.write("*/");
+		fw.close();
 	}
 	
 }
