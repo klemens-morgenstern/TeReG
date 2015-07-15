@@ -5,6 +5,8 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -44,8 +46,8 @@ public class Review
 			int line = file.line;
 			if (Description.value == null)
 			{
-				lineBegin = line;
-				lineEnd = line;
+				lineBegin = line-1;
+				lineEnd = line-1;
 			}
 			else
 			{
@@ -57,7 +59,7 @@ public class Review
 					
 					m.find();
 					Description.value = Description.value.replace(m.group(0),  "");
-					lineBegin 	= line + Integer.parseInt(m.group(1));
+					lineBegin 	= line + Integer.parseInt(m.group(1)) - 1;
 					lineEnd 	= line + Integer.parseInt(m.group(2));
 					return;
 				} catch (IllegalStateException e) {}
@@ -68,7 +70,7 @@ public class Review
 					
 					m.find();
 					Description.value = Description.value.replace(m.group(0),  "");
-					lineEnd 	= line + Integer.parseInt(m.group(1));
+					lineEnd 	= line + Integer.parseInt(m.group(1)) - 1;
 					return;
 				} catch (IllegalStateException e) {}
 
@@ -80,7 +82,7 @@ public class Review
 			calcLines();
 			
 			//fw.write("@section " + Type.value + " " + Type.value + "\n\n");
-			fw.write("@section " + id + " " + Summary.value + "\n\n");
+			fw.write("@subsection " + id + " " + Summary.value + "\n\n");
 			
 			ST st = new ST(	"|  Type  |  Creation Date | Last Modificatied |  Reviewer  |  Annotation  |  Revision  |  Resolution  |\n"
 						+	"|--------|----------------|-------------------|------------|--------------|------------|--------------|\n"
@@ -104,11 +106,11 @@ public class Review
 			
 			
 			
-			int i = 0;
+			int i = 1;
 			for (; i < lineBegin; i++)
 				in.readLine();
 			
-			for (;i <= (lineEnd+1); i++)
+			for (;i <= (lineEnd); i++)
 				fw.write(in.readLine() + "\n");
 
 			fw.write("\\endcode\n");
@@ -151,9 +153,21 @@ public class Review
 		fw.write("/**");
 		fw.write("@page inspection Inspection\n\n");
 		
-		
+		Collections.sort(reviewIssue, 
+				new Comparator<ReviewIssue>() {
+					@Override
+					public int compare(ReviewIssue p1, ReviewIssue p2) {
+						return p1.Type.value.compareTo(p2.Type.value);
+					}
+				});
+		String current = "";
 		for (ReviewIssue issue : reviewIssue)
 		{
+			if (current.compareTo(issue.Type.value) != 0)
+			{
+				current = issue.Type.value;
+				fw.write("@section " + current + " " + current + "\n\n");
+			}
 			issue.writeDox(fw, path);
 		}
 		fw.write("*/");
