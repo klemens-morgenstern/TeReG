@@ -514,4 +514,8 @@ public class DetailsReportXml
 		@Attribute public String text;
 		@Attribute public String order_no;
 	}
+	public void writeDox(String out) 
+	{
+		
+	}
 }

@@ -190,7 +190,7 @@ public class RequirementCoverageOverview
 	
 	
 	
-	void writeDox(String filename) throws IOException
+	void writeDox(String filename, String path) throws IOException
 	{
 		FileWriter fw = new FileWriter(filename);
 		fw.write("/**");

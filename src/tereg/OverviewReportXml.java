@@ -137,7 +137,7 @@ public class OverviewReportXml
 			@Attribute public double percentage;
 		}
 	}
-	public void writeDox(String filename) throws IOException
+	public void writeDox(String filename, String pic_path) throws IOException
 	{
 		FileWriter fw = new FileWriter(filename);
 		fw.write("/**");
