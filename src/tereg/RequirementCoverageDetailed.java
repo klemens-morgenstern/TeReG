@@ -42,4 +42,8 @@ public class RequirementCoverageDetailed
 
 		}
 	}
+
+	public void writeDox(String out, String path)
+	{
+	}
 }

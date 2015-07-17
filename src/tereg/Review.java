@@ -149,7 +149,12 @@ public class Review
 
 	void writeDox(String filename, String path) throws IOException
 	{
-		FileWriter fw = new FileWriter(filename);
+		java.io.File f = new java.io.File(filename);
+		f.getParentFile().mkdir();
+		
+		FileWriter fw = new FileWriter(f);
+		
+		
 		fw.write("/**");
 		fw.write("@page inspection Inspection\n\n");
 		

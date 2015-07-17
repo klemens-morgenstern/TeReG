@@ -20,7 +20,7 @@ public class Main
 
 	public static void main(String[] args) throws Exception 
 	{
-		if (args.length < 3)
+		if (args.length < 2)
 		{
 			System.out.print("java tereg.jar [INPUT] [OUTPUT] [PATH]");
 			System.exit(-1);
@@ -28,19 +28,19 @@ public class Main
 		
 		Serializer serializer = new Persister();
 		
-		BufferedReader in_reader = new BufferedReader(new FileReader(args[1]));
+		BufferedReader in_reader = new BufferedReader(new FileReader(args[0]));
 
 		String in = "";
 		{
 			StringWriter sw = new StringWriter();
 			String line = null;
         	while ((line = in_reader.readLine()) != null) 
-        		sw.append(line);
+        		sw.append(line + "\n");
         	
         	in = sw.toString();
 		}
 		
-		String out = args[2];
+		String out = args[1];
 		
 		//Review 
 		try
@@ -49,13 +49,16 @@ public class Main
 			StringReader rd = new StringReader(in);
 			serializer.read(insp,  rd);
 			
-			String path = args[3];
+			String path = args[2];
 			
 			insp.writeDox(out, path);
 			
 			System.exit(0);
 		}
-		catch(org.simpleframework.xml.core.AttributeException ex) {}
+		catch(org.simpleframework.xml.core.PersistenceException ex) 
+		{
+
+		}
 
 		
 		//Details
@@ -70,9 +73,10 @@ public class Main
 
 			System.exit(0);
 		}
-		catch(org.simpleframework.xml.core.AttributeException ex)
+		catch(org.simpleframework.xml.core.PersistenceException ex)
 		{
 			//Details failed
+
 		}
 		
 		//Overview 
@@ -82,13 +86,16 @@ public class Main
 			StringReader rd = new StringReader(in);
 			serializer.read(overview, rd);
 			
-			String path = args[3];
+			String path = args[2];
 
 			overview.writeDox(out, path);
 
 			System.exit(0);
 		}
-		catch(org.simpleframework.xml.core.AttributeException ex) {}
+		catch(org.simpleframework.xml.core.PersistenceException ex) 
+		{
+
+		}
 		
 		//RequirementCoverageOverview
 		try
@@ -97,15 +104,34 @@ public class Main
 			StringReader rd = new StringReader(in);
 			serializer.read(reqOvw, rd);	
 			
-			String path = args[3];
+			String path = args[2];
 
 			
 			reqOvw.writeDox(out, path);
 
 			System.exit(0);
 		}
-		catch(org.simpleframework.xml.core.AttributeException ex) {}
+		catch(org.simpleframework.xml.core.PersistenceException ex) 
+		{
+		}
 
+		//RequirementCoverageDetailed
+		try
+		{
+			RequirementCoverageDetailed reqOvw = new RequirementCoverageDetailed();
+			StringReader rd = new StringReader(in);
+			serializer.read(reqOvw, rd);	
+			
+			String path = args[2];
+
+			
+			reqOvw.writeDox(out, path);
+
+			System.exit(0);
+		}
+		catch(org.simpleframework.xml.core.PersistenceException ex) 
+		{
+		}
 		
 		//serializer.read(details, new File("Details2.xml"));
 		System.exit(-1);
