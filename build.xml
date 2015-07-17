@@ -1,0 +1,54 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<project name="TeReG" default="bin" basedir=".">
+  <description>
+        simple example build file
+    </description>
+  <!-- set global properties for this build -->
+  <property name="src" location="src" />
+  <property name="build" location="build" />
+  <property name="bin" location="bin" />
+  <target name="init">
+    <!-- Create the time stamp -->
+    <tstamp />
+    <!-- Create the build directory structure used by compile -->
+    <mkdir dir="${build}" />
+  </target>
+  <target name="compile" depends="init" description="compile the source ">
+    <!-- Compile the java code from ${src} into ${build} -->
+    <javac srcdir="${src}" destdir="${build}" >
+		<exclude name="${src}/Test/*"/>
+		<classpath>
+			<pathelement path="lib/hamcrest-core-1.3.jar"/>
+			<pathelement path="lib/jcommon-1.0.23.jar"/>
+			<pathelement path="lib/jfreechart-1.0.19-experimental.jar"/>
+			<pathelement path="lib/jfreechart-1.0.19-swt.jar"/>
+			<pathelement path="lib/jfreechart-1.0.19.jar"/>
+			<pathelement path="lib/jfreesvg-2.0.jar"/>
+			<pathelement path="lib/junit-4.11.jar"/>
+			<pathelement path="lib/orsoncharts-1.4-eval-nofx.jar"/>
+			<pathelement path="lib/orsonpdf-1.6-eval.jar"/>
+			<pathelement path="lib/servlet.jar"/>
+			<pathelement path="lib/simple-xml-2.7.1.jar"/>
+			<pathelement path="lib/ST-4.0.8.jar"/>
+			<pathelement path="lib/swtgraphics2d.jar"/>
+		</classpath>
+	</javac>
+  </target>
+  <target name="bin" depends="compile" description="generate the distribution">
+    <!-- Create the distribution directory -->
+    <mkdir dir="${bin}" />
+    <!-- Put everything in ${build} into the MyProject-${DSTAMP}.jar file -->
+    <jar jarfile="${bin}/TeReG.jar" basedir="${build}">
+        <zipgroupfileset dir="." includes="lib/*.jar" />
+        <manifest>
+            <attribute name="Main-Class" value="tereg.Main"/>
+            <attribute name="Class-Path" value="."/>
+        </manifest>
+    </jar>
+  </target>
+  <target name="clean" description="clean up">
+    <!-- Delete the ${build} and ${dist} directory trees -->
+    <delete dir="${build}" />
+    <delete dir="${bin}" />
+  </target>
+</project>
