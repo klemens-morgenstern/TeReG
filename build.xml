@@ -24,6 +24,7 @@
 			<pathelement path="lib/jfreechart-1.0.19-swt.jar"/>
 			<pathelement path="lib/jfreechart-1.0.19.jar"/>
 			<pathelement path="lib/jfreesvg-2.0.jar"/>
+			<pathelement path="lib/json-simple-1.1.1.jar"/>
 			<pathelement path="lib/junit-4.11.jar"/>
 			<pathelement path="lib/orsoncharts-1.4-eval-nofx.jar"/>
 			<pathelement path="lib/orsonpdf-1.6-eval.jar"/>

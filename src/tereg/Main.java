@@ -1,7 +1,6 @@
 package tereg;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileReader;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -9,10 +8,9 @@ import java.io.StringWriter;
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
 
-import tereg.Review.ReviewIssue;
-import tereg.graph.PassBar;
-import tereg.graph.PassPie;
-import tereg.graph.ReqPie;
+import tereg.vcrm.Vcrm;
+
+
 
 
 public class Main 
@@ -26,8 +24,10 @@ public class Main
 			System.exit(-1);
 		}
 		
+		
 		Serializer serializer = new Persister();
 		
+		@SuppressWarnings("resource")
 		BufferedReader in_reader = new BufferedReader(new FileReader(args[0]));
 
 		String in = "";
@@ -45,6 +45,8 @@ public class Main
 		//Review 
 		try
 		{
+
+			Vcrm.load(args[3]);
 			Review insp = new Review();		
 			StringReader rd = new StringReader(in);
 			serializer.read(insp,  rd);
@@ -53,7 +55,9 @@ public class Main
 			
 			insp.writeDox(out, path);
 			
+			Vcrm.save();
 			System.exit(0);
+			
 		}
 		catch(org.simpleframework.xml.core.PersistenceException ex) 
 		{
@@ -100,6 +104,8 @@ public class Main
 		//RequirementCoverageOverview
 		try
 		{
+			
+
 			RequirementCoverageOverview reqOvw = new RequirementCoverageOverview();
 			StringReader rd = new StringReader(in);
 			serializer.read(reqOvw, rd);	
@@ -118,6 +124,8 @@ public class Main
 		//RequirementCoverageDetailed
 		try
 		{
+			Vcrm.load(args[3]);
+
 			RequirementCoverageDetailed reqOvw = new RequirementCoverageDetailed();
 			StringReader rd = new StringReader(in);
 			serializer.read(reqOvw, rd);	
@@ -126,6 +134,7 @@ public class Main
 
 			
 			reqOvw.writeDox(out, path);
+			Vcrm.save();
 
 			System.exit(0);
 		}

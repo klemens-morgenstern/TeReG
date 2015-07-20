@@ -15,5 +15,6 @@
 	<classpathentry kind="lib" path="lib/swtgraphics2d.jar"/>
 	<classpathentry kind="lib" path="lib/ST-4.0.8.jar"/>
 	<classpathentry kind="lib" path="lib/simple-xml-2.7.1.jar"/>
+	<classpathentry kind="lib" path="lib/json-simple-1.1.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
