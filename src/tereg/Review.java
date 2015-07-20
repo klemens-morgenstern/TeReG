@@ -11,8 +11,11 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.json.simple.JSONArray;
 import org.simpleframework.xml.*;
 import org.stringtemplate.v4.ST;
+
+import tereg.vcrm.Vcrm;
 
 
 @Root
@@ -38,6 +41,7 @@ public class Review
 		@Element public OptText Revision;
 		@Element public OptText Resolution;
 		@Element public OptText Status;
+		
 		
 		public int lineBegin;
 		public int lineEnd;
@@ -74,7 +78,6 @@ public class Review
 					return;
 				} catch (IllegalStateException e) {}
 
-				
 			}
 		}
 		public void writeDox(Writer fw, String path) throws IOException
@@ -170,13 +173,44 @@ public class Review
 		{
 			if (current.compareTo(issue.Type.value) != 0)
 			{
-				current = issue.Type.value;
+				current = issue.id;
 				fw.write("@section " + current + " " + current + "\n\n");
 			}
 			issue.writeDox(fw, path);
 		}
 		fw.write("*/");
 		fw.close();
+	}
+
+	public void buildVcrm(Vcrm vcrm) 
+	{
+		for (ReviewIssue ri : reviewIssue)
+		{
+			
+			//get the id
+			try {
+				Pattern pat = Pattern.compile("@insp\\{([^}]*)\\}");
+				Matcher m = pat.matcher(ri.Description.value);
+				
+				m.find();
+				String id = m.group(1);
+				
+				
+				JSONArray arr = vcrm.map.get(id);
+				if (arr != null)
+				{
+					if (!arr.contains("inspection"))
+					{
+						arr.add("inspection");
+					}
+				}
+				
+			} catch (IllegalStateException e) {}
+			
+			
+			
+
+		}
 	}
 	
 }

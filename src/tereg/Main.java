@@ -46,7 +46,7 @@ public class Main
 		try
 		{
 
-			Vcrm.load(args[3]);
+			Vcrm vcrm = new Vcrm(args[3]);
 			Review insp = new Review();		
 			StringReader rd = new StringReader(in);
 			serializer.read(insp,  rd);
@@ -54,8 +54,8 @@ public class Main
 			String path = args[2];
 			
 			insp.writeDox(out, path);
-			
-			Vcrm.save();
+			insp.buildVcrm(vcrm);
+			vcrm.save();
 			System.exit(0);
 			
 		}
@@ -124,7 +124,7 @@ public class Main
 		//RequirementCoverageDetailed
 		try
 		{
-			Vcrm.load(args[3]);
+			Vcrm vcrm = new Vcrm(args[3]);
 
 			RequirementCoverageDetailed reqOvw = new RequirementCoverageDetailed();
 			StringReader rd = new StringReader(in);
@@ -134,7 +134,7 @@ public class Main
 
 			
 			reqOvw.writeDox(out, path);
-			Vcrm.save();
+			vcrm.save();
 
 			System.exit(0);
 		}
