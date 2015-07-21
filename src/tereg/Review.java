@@ -88,6 +88,32 @@ public class Review
 			//fw.write("@section " + Type.value + " " + Type.value + "\n\n");
 			fw.write("@subsection " + id + " " + Summary.value + "\n\n");
 			
+			
+			fw.write(Description.value + "\n\n");
+
+			
+			BufferedReader in
+			   = new BufferedReader(new FileReader(path + file.value.replace("/","\\")));
+			
+			fw.write("\\code{.c} \n");
+			
+			int i = 1;
+			for (; i < lineBegin; i++)
+				in.readLine();
+			
+			for (;i <= (lineEnd); i++)
+				fw.write(in.readLine() + "\n");
+
+			fw.write("\\endcode\n");
+			if (lineBegin != lineEnd)
+				fw.write("<center><i>File " + file.value + 
+					" Lines " + lineBegin + ":" + lineEnd + "</i></center>\n");
+			else
+				fw.write("<center><i>File " + file.value + 
+						" Line " + lineBegin + "</i></center>\n");
+				
+
+			
 			ST st = new ST(	"|  Type  |  Creation Date | Last Modificatied |  Reviewer  |  Annotation  |  Revision  |  Resolution  |\n"
 						+	"|--------|----------------|-------------------|------------|--------------|------------|--------------|\n"
 						+	"| <Type> | <CreationDate> | <LastModified>    | <Reviewer> | <Annotation> | <Revision> | <Resolution> |\n");
@@ -102,27 +128,10 @@ public class Review
 			
 			fw.write(st.render() + "\n\n");
 			
-			fw.write("\\code{.c} \n");
-			
-			
-			BufferedReader in
-			   = new BufferedReader(new FileReader(path + file.value.replace("/","\\")));
 			
 			
 			
-			int i = 1;
-			for (; i < lineBegin; i++)
-				in.readLine();
 			
-			for (;i <= (lineEnd); i++)
-				fw.write(in.readLine() + "\n");
-
-			fw.write("\\endcode\n");
-			fw.write("<center><i>File " + file.value + 
-					" Lines " + lineBegin + ":" + lineEnd + "</i></center>\n");
-			
-			
-			fw.write(Description.value + "\n\n");
 			in.close();
 		}
 	}
@@ -196,17 +205,19 @@ public class Review
 				Pattern pat = Pattern.compile("@insp\\{([^}]*)\\}");
 				Matcher m = pat.matcher(ri.Description.value);
 				
-				m.find();
-				String id = m.group(1);
-				
-				//TODO: No fail is possible atm. 
-				
-				JSONObject obj = vcrm.map.get(id);
-				if (obj != null)
+				while (m.find())
 				{
-					if (!obj.containsKey("inspection"))
+					String id = m.group(1);
+				
+					//TODO: No fail is possible atm. 
+				
+					JSONObject obj = vcrm.map.get(id);
+					if (obj != null)
 					{
-						obj.put("inspection", new Boolean(true));
+						if (!obj.containsKey("inspection"))
+						{
+							obj.put("inspection", new Boolean(true));
+						}
 					}
 				}
 				
