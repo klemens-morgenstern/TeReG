@@ -194,8 +194,9 @@ public class RequirementCoverageOverview
 	{
 		FileWriter fw = new FileWriter(filename);
 		fw.write("/**");
-		fw.write("@page " + info.projectname + "\n\n");
-		
+		fw.write("@page " + info.projectname + "ReqOvw " + info.projectname + " Requirement Coverage Overview\n\n");
+		fw.write("@brief Overview of the Requirement Coverage");
+		fw.write("@details\n");
 		fw.write("@section reqOvw Requirement Overview Report\n");
 		
 		fw.write(getInfo());

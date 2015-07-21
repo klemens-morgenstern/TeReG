@@ -12,6 +12,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 import org.simpleframework.xml.*;
 import org.stringtemplate.v4.ST;
 
@@ -160,6 +161,9 @@ public class Review
 		
 		fw.write("/**");
 		fw.write("@page inspection Inspection\n\n");
+		fw.write("@brief All code inspections.\n");
+		fw.write("@details @tableofcontents\n");
+		
 		
 		Collections.sort(reviewIssue, 
 				new Comparator<ReviewIssue>() {
@@ -173,7 +177,7 @@ public class Review
 		{
 			if (current.compareTo(issue.Type.value) != 0)
 			{
-				current = issue.id;
+				current = issue.Type.value;
 				fw.write("@section " + current + " " + current + "\n\n");
 			}
 			issue.writeDox(fw, path);
@@ -195,13 +199,14 @@ public class Review
 				m.find();
 				String id = m.group(1);
 				
+				//TODO: No fail is possible atm. 
 				
-				JSONArray arr = vcrm.map.get(id);
-				if (arr != null)
+				JSONObject obj = vcrm.map.get(id);
+				if (obj != null)
 				{
-					if (!arr.contains("inspection"))
+					if (!obj.containsKey("inspection"))
 					{
-						arr.add("inspection");
+						obj.put("inspection", new Boolean(true));
 					}
 				}
 				

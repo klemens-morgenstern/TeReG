@@ -25,7 +25,7 @@ import org.json.simple.parser.ParseException;
 public class Vcrm 
 {
 	
-	public Map<String, JSONArray> map;
+	public Map<String, JSONObject> map;
 	public String filename;
 	public Vcrm(String target) throws IOException, ParseException
 	{
@@ -41,15 +41,15 @@ public class Vcrm
 
 		JSONObject jo = (JSONObject)obj; 
 		
-		map = new HashMap<String, JSONArray>();
+		map = new HashMap<String, JSONObject>();
 	
 		for (Object key : jo.keySet())
 		{
 			if (key == null)
 				continue;
-			JSONArray ja = (JSONArray)jo.get(key);
+			JSONObject ja = (JSONObject)jo.get(key);
 			if (ja == null)
-				ja = new JSONArray();
+				ja = new JSONObject();
 			
 			map.put((String)key, ja);
 		}
