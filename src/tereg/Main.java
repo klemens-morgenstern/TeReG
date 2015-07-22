@@ -49,6 +49,7 @@ public class Main
 			Vcrm vcrm = new Vcrm(args[3]);
 			Review insp = new Review();		
 			StringReader rd = new StringReader(in);
+			
 			serializer.read(insp,  rd);
 			
 			String path = args[2];
@@ -70,8 +71,11 @@ public class Main
 		{
 			DetailsReportXml details = new DetailsReportXml();
 			StringReader rd = new StringReader(in);
-			serializer.read(details, rd);
 			
+
+			
+			
+			serializer.read(details, rd);
 
 			details.writeDox(out);
 
@@ -104,8 +108,6 @@ public class Main
 		//RequirementCoverageOverview
 		try
 		{
-			
-
 			RequirementCoverageOverview reqOvw = new RequirementCoverageOverview();
 			StringReader rd = new StringReader(in);
 			serializer.read(reqOvw, rd);	
@@ -119,6 +121,8 @@ public class Main
 		}
 		catch(org.simpleframework.xml.core.PersistenceException ex) 
 		{
+			System.err.println(ex.toString());
+
 		}
 
 		//RequirementCoverageDetailed
@@ -134,6 +138,33 @@ public class Main
 
 			
 			reqOvw.writeDox(out, path);
+			vcrm.save();
+
+			System.exit(0);
+		}
+		catch(org.simpleframework.xml.core.PersistenceException ex) 
+		{
+		}
+		
+		//The compile test stuff
+		try
+		{
+			Vcrm vcrm = new Vcrm(args[3]);
+
+			CompileTests cts = new CompileTests();
+
+			StringReader rd = new StringReader(in);
+			
+
+			
+			serializer.read(cts, rd);	
+			
+			String path = args[2];
+
+			cts.writeDox(out, path);
+			cts.buildVcrm(vcrm, path);
+
+			
 			vcrm.save();
 
 			System.exit(0);

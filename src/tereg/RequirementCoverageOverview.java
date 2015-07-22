@@ -66,7 +66,15 @@ public class RequirementCoverageOverview
 	
 			@ElementList public List<Testcase> testcases;
 			
-			@Root public class Testcase {};
+			@Root static public class Testcase 
+			{
+				@Attribute public String module;
+				@Attribute public String testobject;
+				@Attribute public String tc;
+				@Attribute public String state;
+				
+			};
+			
 			
 			public String getRow()
 			{
