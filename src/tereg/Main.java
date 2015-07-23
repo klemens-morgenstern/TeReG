@@ -128,8 +128,6 @@ public class Main
 		}
 		catch(org.simpleframework.xml.core.PersistenceException ex) 
 		{
-			System.err.println(ex.toString());
-
 		}
 
 		//RequirementCoverageDetailed

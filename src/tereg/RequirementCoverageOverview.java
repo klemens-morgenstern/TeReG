@@ -130,31 +130,31 @@ public class RequirementCoverageOverview
 			static String getStateDescr(String abbr)
 			{
 				if (abbr.compareTo("UNLINKED") == 0)
-					return "<td class=\"fieldname\" align=\"right\" bgcolor=\"#FF0000\">No Tests available</td>\n";
+					return "<td class=\"fieldname\" align=\"right\" bgcolor=\"#FF0000\">No tests available</td>\n";
 				else if (abbr.compareTo("NONE_EXECUTED") == 0)
-					return "<td class=\"fieldname\" align=\"right\" bgcolor=\"#3399FF\">No Tests available</td>\n";
+					return "<td class=\"fieldname\" align=\"right\" bgcolor=\"#3399FF\">No tests executed</td>\n";
 				else if (abbr.compareTo("SOME_PASSED_OR_FAILED") == 0)
-					return "<td class=\"fieldname\" align=\"right\" bgcolor=\"#8F0000\">No Tests available</td>\n";
+					return "<td class=\"fieldname\" align=\"right\" bgcolor=\"#8F0000\">Some tests failed</td>\n";
 				else if (abbr.compareTo("SOME_PASSED") == 0)
-					return "<td class=\"fieldname\" align=\"right\" bgcolor=\"#008F00\">No Tests available</td>\n";
+					return "<td class=\"fieldname\" align=\"right\" bgcolor=\"#008F00\">Some tests passed</td>\n";
 				else if (abbr.compareTo("ALL_PASSED_OR_FAILED") == 0)
-					return "<td class=\"fieldname\" align=\"right\" bgcolor=\"#FF0000\">No Tests available</td>\n";
+					return "<td class=\"fieldname\" align=\"right\" bgcolor=\"#FF0000\">All tests failed</td>\n";
 				else if (abbr.compareTo("ALL_PASSED") == 0)
-					return "<td class=\"fieldname\" align=\"right\" bgcolor=\"#00FF00\">No Tests available</td>\n";
+					return "<td class=\"fieldname\" align=\"right\" bgcolor=\"#00FF00\">All tests passed</td>\n";
 				else
 					return abbr;
 			}
 
 		}
 		
-		public String getDox() throws IOException
+		public String getDox(String pic_path) throws IOException
 		{
 			StringWriter sw = new StringWriter();
 			
 			String tl = title.replace(" ", "_");
 			
 			
-			sw.write("@section ReqDoc-" + tl +  " " + title + "\n\n");
+			sw.write("@section ReqOvw-" + tl +  " " + title + "\n\n");
 			
 			ReqPie rp = new ReqPie(title);
 			
@@ -174,7 +174,7 @@ public class RequirementCoverageOverview
 					rp.set_all_passed(s.count);
 			}
 			
-			rp.chartToFile("ReqPie_" + tl.replace("-",  "_") + ".png");
+			rp.chartToFile(pic_path + "\\ReqPie_" + tl.replace("-",  "_") + ".png");
 			
 			sw.write("@image html ReqPie_" + tl + ".png\n");
 			sw.write("@image latex ReqPie_" + tl + ".png\n\n");
@@ -206,16 +206,16 @@ public class RequirementCoverageOverview
 	{
 		FileWriter fw = new FileWriter(filename);
 		fw.write("/**");
-		fw.write("@page ReqCovRep Requirement Coverage Report\n\n");
+		fw.write("@page ReqCovRep Requirement Coverage Overview\n\n");
 		fw.write("@brief Overview of the Requirement Coverage");
-		fw.write("@details\n");
-		
+		fw.write("@details @tableofcontents\n");
+		fw.write("@subpage ReqCovDet\n");
 		fw.write(getInfo());
 		
 		
 		for (Requirementdocument doc : requirementdocuments)
 		{
-			fw.write(doc.getDox() + "\n\n");
+			fw.write(doc.getDox(path) + "\n\n");
 		}
 		fw.write("*/");
 		fw.close();
