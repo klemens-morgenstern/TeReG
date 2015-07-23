@@ -78,8 +78,9 @@ public class Main
 			
 			
 			serializer.read(details, rd);
+			String path = args[2];
 
-			details.writeDox(out);
+			details.writeDox(out, args[0], path);
 
 			System.exit(0);
 		}
@@ -105,7 +106,6 @@ public class Main
 		}
 		catch(org.simpleframework.xml.core.PersistenceException ex) 
 		{
-
 		}
 		
 		//RequirementCoverageOverview

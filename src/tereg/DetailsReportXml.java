@@ -1,12 +1,31 @@
 package tereg;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.io.ObjectInputStream.GetField;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.PathMatcher;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import org.json.simple.JSONObject;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.ElementListUnion;
 import org.simpleframework.xml.Root;
+
+import tereg.DetailsReportXml.Testobject.Testcase;
+import tereg.DetailsReportXml.Testobject.Teststep;
+import tereg.DetailsReportXml.Testobject.Teststep.Call_Trace.Trace_Entry;
 
 @Root
 public class DetailsReportXml 
@@ -514,8 +533,241 @@ public class DetailsReportXml
 		@Attribute public String text;
 		@Attribute public String order_no;
 	}
-	public void writeDox(String out) 
+	
+	static String CovTableEntry(double value)
 	{
-		
+		if (value == 100)
+			return "<td class=\"fieldname\" bgcolor=\"#00FF00\">" + value +  "%</td>\n";
+		else
+			return "<td class=\"fieldname\" bgcolor=\"#FF0000\">" + value + "%</td>\n";
+
 	}
+	
+	public void writeDox(String filename, String sourceFile, String Imagepath) throws IOException
+	{
+		File f = new File(filename);
+		f.getParentFile().mkdirs();
+		FileWriter fw = new FileWriter(f);
+		fw.write("/**\n");
+		fw.write("@page TestObject-" + testobject_name + " Detailed Testreport for Function " + testobject_name + "\n");
+		fw.write("@brief Test of @ref " + testobject_name + "\n");
+
+		fw.write("@details\n");
+		
+		fw.write("@section TestObject-" + testobject_name + "-summary Summary\n\n");
+		
+		fw.write("<table><tr><td>Project</td><td>" + summary.info.project_name + "</td></tr>\n");
+		fw.write("<tr><td>Module</td><td>@ref " + summary.info.module_name + "</td></tr>\n");
+		fw.write("<tr><td>Test Object</td><td>@ref " + summary.info.testobject_name + "</td></tr></table>\n");
+		
+	
+		
+		fw.write("<table class=\"fieldtable\"><tr><th colspan=\"2\">Instrumentation: Test Object Only</th></tr>\n");
+		//dangerous, because it is hard coded. but should work.
+		fw.write("<tr><td class=\"fieldname\">Statement (C0) Coverage</td>" + CovTableEntry(summary.coverage.get(0).percentage) + "</tr>\n");
+		fw.write("<tr><td class=\"fieldname\">Decision Coverage</td>" 		+ CovTableEntry(summary.coverage.get(2).percentage) + "</tr>\n");
+		fw.write("<tr><td class=\"fieldname\">Branch (C1) Coverage</td>" 	+ CovTableEntry(summary.coverage.get(1).percentage) + "</tr>\n");
+		fw.write("<tr><td class=\"fieldname\">MCC Coverage</td>" 			+ CovTableEntry(summary.coverage.get(4).percentage) + "</tr>\n");
+		fw.write("<tr><td class=\"fieldname\">MC/DC Coverage</td>" 			+ CovTableEntry(summary.coverage.get(3).percentage) + "</tr>\n");
+		fw.write("</table>\n\n");
+		
+
+		
+		fw.write("<table class=\"fieldtable\"><tr><th colspan=\"2\">Statistics</th></tr>\n");
+		fw.write("<tr><td class=\"fieldname\">Total Successful</td><td class=\"fieldname\">" 	+ summary.statistic.total + "</td></tr>\n");
+		if (Integer.parseInt(summary.statistic.ok) == Integer.parseInt(summary.statistic.total))
+			fw.write("<tr><td class=\"fieldname\">Successful</td><td class=\"fieldname\" bgcolor=\"#00FF00\">" 			+ summary.statistic.ok + "</td></tr>\n");
+		else
+			fw.write("<tr><td class=\"fieldname\" >Successful</td><td class=\"fieldname\"bgcolor=\"#FF0000\">" 			+ summary.statistic.ok + "</td></tr>\n");
+		if (Integer.parseInt(summary.statistic.notok) >= 0)
+			fw.write("<tr><td class=\"fieldname\">Failed</td><td class=\"fieldname\" bgcolor=\"#00FF00\">" 				+ summary.statistic.notok + "</td></tr>\n");
+		else
+			fw.write("<tr><td class=\"fieldname\">Failed</td><td class=\"fieldname\" bgcolor=\"#FF0000\">" 				+ summary.statistic.notok + "</td></tr>\n");
+		
+		
+		if (summary.statistic.notexecuted != "0")
+			fw.write("<tr><td class=\"fieldname\">Not executed</td><td class=\"fieldname\" bgcolor=\"#3399FF\">" 		+ summary.statistic.notexecuted + "</td></tr>\n");
+		else
+			fw.write("<tr><td class=\"fieldname\">Not executed</td><td class=\"fieldname\">" 		+ summary.statistic.notexecuted + "</td></tr>\n");
+		
+		fw.write("</table>\n\n");
+		
+		
+		if (summary.requirements != null)
+		{
+			fw.write("Linked Requirements:\n");
+			for (Requirement req : summary.requirements)
+			{
+				fw.write(" + @reqf{" + req._short + "}\n");
+			}
+		}
+		
+		if (summary.info.cte_file != null)
+		{
+		
+			fw.write("@section TestObject-" + testobject_name + "-cte Classification Tree Specification\n");
+			String sc[] = sourceFile.split("/");
+		
+			//it only writes after the CTE image.
+			boolean write = false;
+			
+			BufferedReader ht_r = new BufferedReader(new FileReader(find_file(".", sc[sc.length-1].replace(".xml", ".html"))));
+
+			String line = null;
+			while ((line = ht_r.readLine()) != null)
+			{
+				if (line.matches("<IMG SRC=\\\"+([^\"]+)\\\">"))
+				{
+					try {
+						Pattern pat = Pattern.compile("<IMG SRC=\\\"+([^\"]+)\\\">");
+						Matcher m = pat.matcher(line);
+						
+						if (m.find())
+						{
+							String id = m.group(1); //thats the filename
+						
+							
+							File cte_img = find_file(".", id);
+							
+							Files.copy(cte_img.toPath(), new File(Imagepath + "/" + cte_img.getName()).toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+							
+							fw.write("@image html " + cte_img.getName() + "\n");
+							write = true;
+							fw.write("@htmlonly\n");
+
+						}
+						
+					} catch (IllegalStateException e) {}
+					
+				}
+				else if (write)
+				{
+					fw.write(line + "\n");
+				}
+			}
+			fw.write("@endhtmlonly\n");
+		}
+		
+		fw.write("@section TestObject-" + testobject_name + "-usercode Usercode\n\n");
+		
+		for (Stub s : usercode.stubs)
+		{
+			fw.write("Stub of function @ref " + s.name + "\n\n");
+			
+			
+			if (s.head != null)
+			{
+				fw.write(s.head);
+				fw.write("@endcode\n");
+			}
+			if (s.body != null)
+			{
+				fw.write(s.body);
+				fw.write("@endcode\n");
+			}
+		}
+		
+		fw.write("@section TestObject-" + testobject_name + "-details Test Execution Details\n\n");
+		
+		for (Testcase tc : testobject.testcase)
+		{
+			fw.write("@subsection TestCase-" + testobject_name + "-" +  tc.id + " Testcase " + tc.id + " : " + tc.name + "\n");
+			
+			fw.write("<table><tr><td><b>Specification</b></td><td>\n" + tc.specification + "</td></tr>");
+			fw.write("<tr><td><b>Linked Requirements</b></td><td>\n");
+			for (Requirement r : tc.requirements)
+			{
+				fw.write("  -@reqf{" + r._short + "}\n");
+			}
+			fw.write("</td></tr></table>\n");
+			
+			for (Teststep ts : tc.teststep)
+			{
+				fw.write("<table class=\"fieldtable\"><tr><th colspan=4>");
+				fw.write("Test Step " + ts.id + " (Repeat Count = " + ts.repeat_count + ")</th></tr>\n");
+				fw.write("<tr><td bgcolor=\"#CCCCCE\"><b>Name </b></td><td colspan=\"3\" bgcolor=\"#CCCCCE\"><b>Inputvalue</b></td></tr>\n");
+				
+				for (Teststep.Input i : ts.inputs)
+				{
+					fw.write("<tr><td class=\"fieldname\">" + i.name + "</td>");
+					fw.write("<td colspan=\"3\" class=\"fieldname\">" + i.value + "</td></tr>");
+				}
+				fw.write("<tr><td bgcolor=\"#CCCCCE\"><b>Name </b></td>");
+				fw.write("<td bgcolor=\"#CCCCCE\"><b>Actual Value</b></td>\n");
+				fw.write("<td bgcolor=\"#CCCCCE\"><b>Expected Value</b></td>\n");
+				fw.write("<td bgcolor=\"#CCCCCE\"><b>Result</b></td></tr>\n");
+
+				for (Teststep.Result r : ts.results)
+				{
+					fw.write("<tr><td class=\"fieldname\">" + r.name + "</td>");
+					fw.write("<td class=\"fieldname\">" + r.actual_value + "</td>");
+					fw.write("<td class=\"fieldname\">" + r.expected_value + "</td>");
+					if (r.success.equals("ok"))
+						fw.write("<td  class=\"fieldname\">@image html success.png\n</td>");
+					else
+						fw.write("<td  class=\"fieldname\">@image html fail.png\n</td>");
+					
+					fw.write("</tr>\n");
+				}
+				
+				fw.write("</table>\n\n");
+				///calltrace
+				if (ts.call_trace != null)
+				{
+					fw.write("<table class=\"fieldtable\"><tr><th colspan=5>Test Step Call Trace</th></tr>\n");
+					
+					fw.write("<tr><td bgcolor=\"#CCCCCE\"><b>Actual Function</b></td>\n");
+					fw.write("<td bgcolor=\"#CCCCCE\"><b>Count</b></td>\n");
+					fw.write("<td bgcolor=\"#CCCCCE\"><b>Expected Function </b></td>\n");
+					fw.write("<td bgcolor=\"#CCCCCE\"><b>Count</b></td>\n");
+					fw.write("<td bgcolor=\"#CCCCCE\"><b>Result</b></td></tr>\n");
+					
+					for (Trace_Entry ct : ts.call_trace.trace_entry)
+					{
+						fw.write("<tr><td class=\"fieldname\">" + ct.actual + "</td>\n");
+						fw.write("<td class=\"fieldname\">" + ct.actual_count + "</td>\n");
+						fw.write("<td class=\"fieldname\">" + ct.expected + "</td>\n");
+						fw.write("<td class=\"fieldname\">" + ct.expected_count + "</td>\n");
+						if (ct.success.equals("ok"))
+							fw.write("<td class=\"fieldname\">@image html success.png\n</td>");
+						else
+							fw.write("<td class=\"fieldname\">@image html fail.png\n</td>");
+	
+					}
+					fw.write("</table>\n");
+				}
+			}
+			
+		}
+		
+		fw.write("@page test-detail Detailed Test Reports\n");
+		fw.write(" +@subpage TestObject-" + testobject_name + "\n");
+		fw.write("*/");
+		fw.close();
+	}
+	
+    static File find_file( String path, String match ) {
+
+        File root = new File( path );
+        File[] list = root.listFiles();
+
+        if (list == null) return null;
+
+        for ( File f : list ) {
+            if ( f.isDirectory() ) 
+            {
+            	File ret = find_file( f.getAbsolutePath() , match);
+            	if (ret != null)
+            		return ret;
+            }
+            else 
+            {
+            	if (f.getName().equals(match))
+            		return f;
+            		
+            }
+        }
+        return null;
+    }
+
 }

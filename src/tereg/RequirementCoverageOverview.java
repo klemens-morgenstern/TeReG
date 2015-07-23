@@ -86,7 +86,7 @@ public class RequirementCoverageOverview
 
 				//TODO : Here's still stuff to do.
 				sw.write("<tr>");
-				sw.write("<td class=\"fieldname\">" + shortdescription + "</td>\n");
+				sw.write("<td class=\"fieldname\"> @reqf{" + shortdescription + "}</td>\n");
 				sw.write(getStateDescr(state));
 				sw.write("<td class=\"fieldname\" " + getPassed(passedtests) + "align=\"right\">" + passedtests	    + "</td>\n");          
 				sw.write("<td class=\"fieldname\" " + getFailed(failedtests) + "align=\"right\">" + failedtests       + "</td>\n");

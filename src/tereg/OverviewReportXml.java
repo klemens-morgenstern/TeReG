@@ -2,6 +2,7 @@ package tereg;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 import java.util.List;
 
 import org.simpleframework.xml.Attribute;
@@ -10,6 +11,8 @@ import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
 
 import tereg.RequirementCoverageOverview.Requirementdocument;
+import tereg.graph.PassBar;
+import tereg.graph.PassPie;
 import tereg.vcrm.Vcrm;
 
 @Root
@@ -23,7 +26,7 @@ public class OverviewReportXml
 	
 	@Element Info info;
 	
-	@Element Settings settings;
+	@Element(required=false) Settings settings;
 	
 	@Element Selected_Objects selected_objects;
 	
@@ -142,21 +145,164 @@ public class OverviewReportXml
 	{
 		FileWriter fw = new FileWriter(filename);
 		fw.write("/**");
-		/*fw.write("@page " + info.projectname + "\n\n");
+		String id_ = selected_objects.selected_object.name.replace("/", "_");
+		fw.write("@page " + id_ + " Overview of " + selected_objects.selected_object.name + "\n");
 		
+		fw.write("@section " + id_ + "-Summ Summary\n");
+		
+		fw.write("<table>\n");
+		fw.write("<tr><td><b>Date</b></td><td>" + info.date + "</td></tr>\n");
+		fw.write("<tr><td><b>Time</b></td><td>" + info.time + "</td></tr>\n");
+		
+		fw.write("<tr><td><b>Successful</b></td><td>" + 	statistic.ok + "</td></tr>\n");
+		fw.write("<tr><td><b>Failed</b></td><td>" + 		statistic.notok + "</td></tr>\n");
+		fw.write("<tr><td><b>Not Executed</b></td><td>" + 	statistic.notexecuted + "</td></tr>\n");
+		fw.write("<tr><td><b>Total test objects</b></td><td>" + statistic.total + "</td></tr>\n");
+		fw.write("</table>");
 
-		fw.write(getInfo());
 		
+		fw.write("@image " + id_ + "_overall.png\n<center><i>Overall test results</i></center>\n\n");
 		
-		for (Requirementdocument doc : requirementdocuments)
-		{
-			fw.write(doc.getDox() + "\n\n");
-		}*/
+		fw.write("@section " + id_ + "-Cov Satistics\n");
+		
+		PassPie.makeChart(pic_path + "\\" + id_ + "_execution.png", 
+				Double.parseDouble(statistic.ok), 
+				Double.parseDouble(statistic.notexecuted), 
+				Double.parseDouble(statistic.notok));
+		
+		fw.write("@image html " + id_ + "_execution.png\n<center><i>Test Case Results for Each Test Object (without Coverage)</i></center>\n\n");
+		fw.write("@image html " + id_ + "_c0.png\n<center><i>Statement (C0) Coverage: Total Statements for Each Test Object</i></center>\n\n");
+		fw.write("@image html " + id_ + "_c1.png\n<center><i>Statement (C0) Coverage: Total Statements for Each Test Object</i></center>\n\n");
+		fw.write("@image html " + id_ + "_decision.png\n<center><i>Decision Coverage: Total Decision Outcomes for Each Test Object</i></center>\n\n");
+		fw.write("@image html " + id_ + "_mcdc.png\n<center><i>MC/DC Coverage: Total Condition Combinations for Each Test Objec</i></center>\n\n");
+		fw.write("@image html " + id_ + "_mcc.png\n<center><i>MCC Coverage: Total Condition Combinations for Each Test Object</i></center>\n\n");
+
+
+
+
+		fw.write("@section " + id_ + "-Obj Test Objects\n");
+
+		
+		StatisticBuilder sb = new StatisticBuilder();
+		
+		fw.write("<table class=\"fieldtable\">\n<tr><th>Number</th>"
+				+ "<th>Name</th>"
+				+ "<th>C0</th>"
+				+ "<th>C1</th>"
+				+ "<th>DC</th>"
+				+ "<th>MC/DC</th>"
+				+ "<th>MCC</th>"
+				+ "<th>EPC</th>"
+				+ "<th>Test cases</th>"
+				+ "<th>Result</th>"
+				+ "</tr>\n");
+		
+		Integer t[] = new Integer[1];
+		t[0] = 0;
+		sb.execute(fw,  tessyobject, t);
+		sb.writePlots(pic_path + "\\" + id_);		
+				
+		fw.write("</table>");
+		fw.write("@page overviews Overview Reports\n\n");
+		fw.write(" + @subpage " + selected_objects.selected_object.name.replace("/", "_") + "\n");
+		
 		fw.write("*/");
 		fw.close();
 	}
 
-	
+	static class StatisticBuilder 
+	{
+		PassBar execution = new PassBar();
+		PassBar c0 		 = new PassBar();
+		PassBar c1 		 = new PassBar();
+		PassBar decision = new PassBar();
+		PassBar mcdc 	 = new PassBar();
+		PassBar mcc 	 = new PassBar();
+		
+		void writePlots(String prefix) throws IOException
+		{
+			execution.	chartToFile("", prefix + "_execution.png");
+			c0.			chartToFile("", prefix + "_c0.png");
+			c1.			chartToFile("", prefix + "_c1.png");
+			decision.	chartToFile("", prefix + "_decision.png");
+			mcdc.		chartToFile("", prefix + "_mcdc.png");
+			mcc.		chartToFile("", prefix + "_mcc.png");
+		}
+		
+		void execute(Writer wr, List<Tessyobject> tos, Integer[] cnt) throws IOException
+		{
+			if (tos == null)
+				return;
+
+			
+			for (Tessyobject to : tos)
+			{
+
+
+				wr.write("<tr><td class=\"fieldname\">");
+				if (to.type.equals("testobject"))
+				{
+					++cnt[0];
+					wr.write(cnt[0].toString());
+					//add the thingies to the statistic.
+					execution.addBar(cnt[0].toString(), 
+								Double.parseDouble(to.testcase_statistics.ok), 
+								Double.parseDouble(to.testcase_statistics.notexecuted), 
+								Double.parseDouble(to.testcase_statistics.notok));
+
+					c0.addBar(cnt[0].toString(), to.coverage.c0.reached, 0, to.coverage.c0.notreached);
+					c1.addBar(cnt[0].toString(), to.coverage.c1.reached, 0, to.coverage.c1.notreached);
+					decision.addBar(cnt[0].toString(), to.coverage.dc.reached, 0, to.coverage.dc.notreached);
+					mcdc.addBar(cnt[0].toString(), to.coverage.mcdc.reached, 0, to.coverage.mcdc.notreached);
+					mcc.addBar(cnt[0].toString(), to.coverage.mcc.reached, 0, to.coverage.mcc.notreached);
+					
+				}
+				
+
+				if (!to.type.equals("testobject"))
+					wr.write("</td>\n<td class=\"fieldname\">" + s(Integer.parseInt(to.level)) + to.name + "</td>\n");
+				else
+					wr.write("</td>\n<td class=\"fieldname\">" + s(Integer.parseInt(to.level)) + "@ref TestObject-" + to.name + " \"" + to.name + "\"" +  "</td>\n");
+
+				wr.write("<td class=\"fieldname\">" + to.coverage.c0.percentage + "%</td>\n"); 					
+				wr.write("<td class=\"fieldname\">" + to.coverage.c1.percentage + "%</td>\n"); 					
+				wr.write("<td class=\"fieldname\">" + to.coverage.dc.percentage + "%</td>\n"); 					
+				wr.write("<td class=\"fieldname\">" + to.coverage.mcdc.percentage + "%</td>\n"); 				
+				wr.write("<td class=\"fieldname\">" + to.coverage.mcc.percentage + "%</td>\n");
+				if (!to.type.equals("testobject"))
+					wr.write("<td class=\"fieldname\">" + to.coverage.epc.percentage + "%</td>\n");
+				else
+					wr.write("<td class=\"fieldname\"></td>\n");
+				wr.write("<td class=\"fieldname\">" + to.testcase_statistics.ok + " of " + to.testcase_statistics.total + " passed</td>\n");
+				
+
+
+				
+				if (to.success.equals("ok"))
+					wr.write("<td class=\"fieldname\">@image html success.png\n</td>");
+				else
+					wr.write("<td class=\"fieldname\">@image html fail.png\n</td>");
+
+				wr.write("</tr>\n");
+				
+				execute(wr, to.tessyobject, cnt);
+				
+
+
+			}
+			
+		}
+		static String s(int i)
+		{
+			String s = "";
+			for (int c = 0; c<(i*4); c++)
+			{
+				s+= "&nbsp;";
+			}
+			return s;
+		}
+		
+	};
 }
 
 

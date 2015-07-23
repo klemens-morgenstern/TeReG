@@ -71,9 +71,9 @@ public class PassBar
     }
 
     
-    private JFreeChart createChart() {
+    private JFreeChart createChart(String title) {
         
-        JFreeChart chart = ChartFactory.createStackedBarChart("Test execution overview", "Executed Test", "Test objects",
+        JFreeChart chart = ChartFactory.createStackedBarChart(title, "Executed Test", "Test objects",
         		createDatasets(), PlotOrientation.VERTICAL, false, false, false);
         
         final CategoryPlot plot = (CategoryPlot)chart.getCategoryPlot();
@@ -89,9 +89,9 @@ public class PassBar
         renderer.setDrawBarOutline(false);
         
 
-        renderer.setSeriesPaint(0, Color.green);
+        renderer.setSeriesPaint(0, Color.red);
         renderer.setSeriesPaint(1, Color.yellow);
-        renderer.setSeriesPaint(2, Color.red);
+        renderer.setSeriesPaint(2, Color.green);
         
         
      /*   plot.setSectionPaint("Passed", 		 Color.green);
@@ -101,11 +101,11 @@ public class PassBar
         return chart;
     }
     
-    public void chartToFile(String filename) throws IOException
+    public void chartToFile(String title, String filename) throws IOException
     {
-    	JFreeChart ch = createChart();
+    	JFreeChart ch = createChart(title);
     	
-    	int width = (bars.size() * 100) + 100;
+    	int width = (bars.size() * 20) + 100;
     	
     	BufferedImage bImg = new BufferedImage(width, 400, BufferedImage.TYPE_INT_RGB);
     	Graphics2D cg = bImg.createGraphics();
