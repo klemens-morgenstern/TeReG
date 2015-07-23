@@ -75,13 +75,7 @@ public class RequirementCoverageDetailed
 		FileWriter fw = new FileWriter(f);
 		
 		
-		fw.write("/**");
-		fw.write("@page  Inspection\n\n");
-		fw.write("@brief All code inspections.\n");
-		fw.write("@details @tableofcontents\n");
-		
 
-		fw.write("*/");
 		fw.close();
 	}
 	

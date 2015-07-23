@@ -5,15 +5,19 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import org.json.simple.JSONObject;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
-
 import org.stringtemplate.v4.*;
 
+import tereg.Review.ReviewIssue;
 import tereg.graph.ReqPie;
+import tereg.vcrm.Vcrm;
 
 @Root
 public class RequirementCoverageOverview 
@@ -202,10 +206,9 @@ public class RequirementCoverageOverview
 	{
 		FileWriter fw = new FileWriter(filename);
 		fw.write("/**");
-		fw.write("@page " + info.projectname + "ReqOvw " + info.projectname + " Requirement Coverage Overview\n\n");
+		fw.write("@page ReqCovRep Requirement Coverage Report\n\n");
 		fw.write("@brief Overview of the Requirement Coverage");
 		fw.write("@details\n");
-		fw.write("@section reqOvw Requirement Overview Report\n");
 		
 		fw.write(getInfo());
 		
@@ -245,5 +248,40 @@ public class RequirementCoverageOverview
 		inf.add("time",  info.time);
 
 		return inf.render();
+	}
+
+	public void buildVcrm(Vcrm vcrm) 
+	{
+		for (Requirementdocument doc : requirementdocuments)
+		{
+			for (Requirementdocument.Requirement req : doc.requirements)
+			{
+				JSONObject obj = vcrm.map.get(req.shortdescription);
+				if (obj == null)
+					continue;
+				
+				
+				if (req.state.compareTo("ALL_PASSED") == 0)
+				{
+					if (!obj.containsKey("unit_test"))
+					{
+						obj.put("unit_test", new Boolean(true));
+					}
+				}
+				else
+				{
+					if (!obj.containsKey("unit_test"))
+					{
+						obj.put("unit_test", new Boolean(false));
+					}
+					else
+					{
+						if ((boolean)obj.get("unit_test") == true)
+							obj.put("unit_test", new Boolean(false));
+
+					}
+				}
+			}
+		}
 	}
 }

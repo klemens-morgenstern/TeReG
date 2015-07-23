@@ -46,12 +46,14 @@ public class Main
 		try
 		{
 
-			Vcrm vcrm = new Vcrm(args[3]);
 			Review insp = new Review();		
 			StringReader rd = new StringReader(in);
 			
 			serializer.read(insp,  rd);
 			
+			
+			Vcrm vcrm = new Vcrm(args[3]);
+
 			String path = args[2];
 			
 			insp.writeDox(out, path);
@@ -95,8 +97,9 @@ public class Main
 			serializer.read(overview, rd);
 			
 			String path = args[2];
-
+			
 			overview.writeDox(out, path);
+
 
 			System.exit(0);
 		}
@@ -114,6 +117,10 @@ public class Main
 			
 			String path = args[2];
 
+			
+			Vcrm vcrm = new Vcrm(args[3]);
+			reqOvw.buildVcrm(vcrm);
+			vcrm.save();
 			
 			reqOvw.writeDox(out, path);
 

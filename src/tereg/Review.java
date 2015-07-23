@@ -222,10 +222,6 @@ public class Review
 				}
 				
 			} catch (IllegalStateException e) {}
-			
-			
-			
-
 		}
 	}
 	
