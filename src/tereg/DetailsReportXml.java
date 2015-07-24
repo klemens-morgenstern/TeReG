@@ -550,7 +550,7 @@ public class DetailsReportXml
 
 		StringWriter fw = new StringWriter();
 		fw.write("/**\n");
-		fw.write("@page TestObject-" + testobject_name + " Detailed Testreport for Function " + testobject_name + "\n");
+		fw.write("@page TestObject-" + testobject_name + " Testreport for " + testobject_name + "\n");
 		fw.write("@brief Test of @ref " + testobject_name + "\n");
 
 		fw.write("@details\n");
@@ -700,7 +700,7 @@ public class DetailsReportXml
 				
 				for (Requirement r : tc.requirements)
 				{
-					fw.write("  -@reqf{" + r._short + "}</td></tr>\n");
+					fw.write("\n  - @reqf{" + r._short + "}</td></tr>\n");
 				}
 			}
 			fw.write("</table>\n");
@@ -776,7 +776,7 @@ public class DetailsReportXml
 
 		
 		fw.write("@page test-detail Detailed Test Reports\n");
-		fw.write(" +@subpage TestObject-" + testobject_name + "\n");
+		fw.write(" + @subpage TestObject-" + testobject_name + "\n\n");
 		fw.write("*/");
 		
 		
