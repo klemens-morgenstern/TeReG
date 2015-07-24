@@ -105,7 +105,11 @@ public class PassBar
     {
     	JFreeChart ch = createChart(title);
     	
-    	int width = (bars.size() * 20) + 100;
+    	int width = (bars.size() * 25);
+    	if (width > 1400)
+    		width = 1400;
+    	else if (width < 400)
+    		width = 400;
     	
     	BufferedImage bImg = new BufferedImage(width, 400, BufferedImage.TYPE_INT_RGB);
     	Graphics2D cg = bImg.createGraphics();

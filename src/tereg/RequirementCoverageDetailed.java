@@ -171,9 +171,9 @@ public class RequirementCoverageDetailed
 			}
 			
 			if (req_pass)
-				fw.write("<tr><td class=\"fieldname\" colspan=\"2\">@ref Req-" + reqId + " Requirement</td><td class=\"fieldname\">@image html success.png\n</td></tr></table>\n\n");
+				fw.write("<tr><td class=\"fieldname\" colspan=\"2\">@ref Req-" + reqId + " \"Requirement\"</td><td class=\"fieldname\">@image html success.png\n</td></tr></table>\n\n");
 			else
-				fw.write("<tr><td class=\"fieldname\" colspan=\"2\">@ref Req-" + reqId + " Requirement</td><td class=\"fieldname\">@image html fail.png\n</td></tr></table>\n\n");
+				fw.write("<tr><td class=\"fieldname\" colspan=\"2\">@ref Req-" + reqId + " \"Requirement\"</td><td class=\"fieldname\">@image html fail.png\n</td></tr></table>\n\n");
 
 			
 		}
