@@ -3,6 +3,7 @@ package tereg;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -72,10 +73,9 @@ public class RequirementCoverageDetailed
 	
 	public void writeDox(String out, String path) throws IOException
 	{
-		java.io.File f = new java.io.File(out);
-		f.getParentFile().mkdir();
+
 		
-		FileWriter fw = new FileWriter(f);
+		StringWriter fw = new StringWriter();
 		
 		fw.write("/**");
 		fw.write("@page ReqCovDet Linked Requirement Coverage Report\n\n");
@@ -140,7 +140,7 @@ public class RequirementCoverageDetailed
 			{
 				TreeMap<String, Boolean> to = sub.get(toid);
 				
-				boolean passed = true;
+				boolean passed = to.size() > 0;
 				for (String tcid : to.keySet())
 					passed &= to.get(tcid);
 				
@@ -180,7 +180,14 @@ public class RequirementCoverageDetailed
 		
 		fw.write("*/");
 
+		
+		java.io.File f = new java.io.File(out);
+		f.getParentFile().mkdir();
+		FileWriter ff = new FileWriter(f);
+		ff.write(fw.toString());
+		ff.close();
 		fw.close();
+		
 	}
 
 	

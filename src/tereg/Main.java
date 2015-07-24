@@ -87,7 +87,7 @@ public class Main
 		catch(org.simpleframework.xml.core.PersistenceException ex)
 		{
 			//Details failed
-
+			//System.err.println(ex.toString());
 		}
 		
 		//Overview 

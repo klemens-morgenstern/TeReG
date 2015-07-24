@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Collections;
 import java.util.Comparator;
@@ -92,10 +93,8 @@ public class CompileTests
 	
 	void writeDox(String filename, String path) throws IOException
 	{
-		java.io.File f = new java.io.File(filename);
-		f.getParentFile().mkdir();
-		
-		FileWriter fw = new FileWriter(f);
+	
+		StringWriter fw = new StringWriter();
 		
 		
 		fw.write("/**");
@@ -111,13 +110,21 @@ public class CompileTests
 						return p1.id.compareTo(p2.id);
 					}
 				});
-		String current = "";
+
 		for (CompileTest issue : compileTests)
 		{
 			issue.writeDox(fw, path);
 		}
 		fw.write("*/");
+		
+		
+		java.io.File f = new java.io.File(filename);
+		f.getParentFile().mkdir();
+		FileWriter ff = new FileWriter(f);
+		ff.write(fw.toString());
+		ff.close();
 		fw.close();
+		
 	}
 
 	public void buildVcrm(Vcrm vcrm, String path) 

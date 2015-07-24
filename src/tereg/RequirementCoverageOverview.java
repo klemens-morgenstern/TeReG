@@ -204,7 +204,7 @@ public class RequirementCoverageOverview
 	
 	void writeDox(String filename, String path) throws IOException
 	{
-		FileWriter fw = new FileWriter(filename);
+		StringWriter fw = new StringWriter();
 		fw.write("/**");
 		fw.write("@page ReqCovRep Requirement Coverage Overview\n\n");
 		fw.write("@brief Overview of the Requirement Coverage");
@@ -218,6 +218,16 @@ public class RequirementCoverageOverview
 			fw.write(doc.getDox(path) + "\n\n");
 		}
 		fw.write("*/");
+		
+		
+		
+		java.io.File f = new java.io.File(filename);
+		f.getParentFile().mkdir();
+		FileWriter ff = new FileWriter(f);
+		ff.write(fw.toString());
+		ff.close();
+		fw.close();
+		
 		fw.close();
 	}
 	

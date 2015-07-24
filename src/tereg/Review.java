@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Collections;
 import java.util.Comparator;
@@ -162,10 +163,9 @@ public class Review
 
 	void writeDox(String filename, String path) throws IOException
 	{
-		java.io.File f = new java.io.File(filename);
-		f.getParentFile().mkdir();
+
 		
-		FileWriter fw = new FileWriter(f);
+		StringWriter fw = new StringWriter();
 		
 		
 		fw.write("/**");
@@ -192,6 +192,12 @@ public class Review
 			issue.writeDox(fw, path);
 		}
 		fw.write("*/");
+		
+		java.io.File f = new java.io.File(filename);
+		f.getParentFile().mkdir();
+		FileWriter ff = new FileWriter(f);
+		ff.write(fw.toString());
+		ff.close();
 		fw.close();
 	}
 

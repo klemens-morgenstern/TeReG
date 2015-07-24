@@ -324,6 +324,8 @@ public class DetailsReportXml
 				@Attribute(required=false) public String ips;
 				@Attribute(required=false) public String scp;
 				@Attribute(required=false) public String tmd;
+				@Attribute(required=false) public String df;
+
 				@Element(required=false) public Fpr fpr;
 				@Element(required=false) public Fpp fpp;
 				@ElementList(required=false, inline=true) public List<Comp> comp;
@@ -545,9 +547,8 @@ public class DetailsReportXml
 	
 	public void writeDox(String filename, String sourceFile, String Imagepath) throws IOException
 	{
-		File f = new File(filename);
-		f.getParentFile().mkdirs();
-		FileWriter fw = new FileWriter(f);
+
+		StringWriter fw = new StringWriter();
 		fw.write("/**\n");
 		fw.write("@page TestObject-" + testobject_name + " Detailed Testreport for Function " + testobject_name + "\n");
 		fw.write("@brief Test of @ref " + testobject_name + "\n");
@@ -647,46 +648,71 @@ public class DetailsReportXml
 			}
 			fw.write("@endhtmlonly\n");
 		}
-		
-		fw.write("@section TestObject-" + testobject_name + "-usercode Usercode\n\n");
-		
-		for (Stub s : usercode.stubs)
+		if (usercode != null)
 		{
-			fw.write("Stub of function @ref " + s.name + "\n\n");
+		
+			fw.write("@section TestObject-" + testobject_name + "-usercode Usercode\n\n");
 			
-			
-			if (s.head != null)
+			for (Stub s : usercode.stubs)
 			{
-				fw.write(s.head);
-				fw.write("@endcode\n");
-			}
-			if (s.body != null)
-			{
-				fw.write(s.body);
-				fw.write("@endcode\n");
-			}
+				fw.write("Stub of function @ref " + s.name + "\n\n");
+				
+				
+				if (s.head != null)
+				{
+					fw.write("@code{.c}\n");
+					fw.write(s.head);
+					fw.write("@endcode\n");
+				}
+				if (s.body != null)
+				{
+					fw.write("@code{.c}\n");
+					fw.write(s.body);
+					fw.write("@endcode\n");
+				}
 		}
 		
+		}
 		fw.write("@section TestObject-" + testobject_name + "-details Test Execution Details\n\n");
+		
 		
 		for (Testcase tc : testobject.testcase)
 		{
-			fw.write("@subsection TestCase-" + testobject_name + "-" +  tc.id + " Testcase " + tc.id + " : " + tc.name + "\n");
+			fw.write("@subsection TestCase-" + testobject_name + "-" +  tc.id + " Testcase " + tc.id );
 			
-			fw.write("<table><tr><td><b>Specification</b></td><td>\n" + tc.specification + "</td></tr>");
-			fw.write("<tr><td><b>Linked Requirements</b></td><td>\n");
-			for (Requirement r : tc.requirements)
+			if (tc.name == null)
+				fw.write("\n");
+			else
+				fw.write(" : " + tc.name + "\n");
+			
+			fw.write("<table>\n");
+			
+			if (tc.specification != null)
 			{
-				fw.write("  -@reqf{" + r._short + "}\n");
+				fw.write("<tr><td><b>Specification</b></td><td>\n" + tc.specification + "</td></tr>");
 			}
-			fw.write("</td></tr></table>\n");
+			
+			if (tc.requirements != null)
+			{
+				fw.write("<tr><td><b>Linked Requirements</b></td><td>\n");
+				
+				
+				
+				for (Requirement r : tc.requirements)
+				{
+					fw.write("  -@reqf{" + r._short + "}</td></tr>\n");
+				}
+			}
+			fw.write("</table>\n");
+			
 			
 			for (Teststep ts : tc.teststep)
 			{
 				fw.write("<table class=\"fieldtable\"><tr><th colspan=4>");
 				fw.write("Test Step " + ts.id + " (Repeat Count = " + ts.repeat_count + ")</th></tr>\n");
-				fw.write("<tr><td bgcolor=\"#CCCCCE\"><b>Name </b></td><td colspan=\"3\" bgcolor=\"#CCCCCE\"><b>Inputvalue</b></td></tr>\n");
+				fw.write("<tr><td bgcolor=\"#CCCCCE\"><b>Name </b></td><td colspan=\"3\" bgcolor=\"#CCCCCE\"><b>Input Value</b></td></tr>\n");
 				
+			
 				for (Teststep.Input i : ts.inputs)
 				{
 					fw.write("<tr><td class=\"fieldname\">" + i.name + "</td>");
@@ -697,20 +723,28 @@ public class DetailsReportXml
 				fw.write("<td bgcolor=\"#CCCCCE\"><b>Expected Value</b></td>\n");
 				fw.write("<td bgcolor=\"#CCCCCE\"><b>Result</b></td></tr>\n");
 
+				
 				for (Teststep.Result r : ts.results)
 				{
-					fw.write("<tr><td class=\"fieldname\">" + r.name + "</td>");
-					fw.write("<td class=\"fieldname\">" + r.actual_value + "</td>");
-					fw.write("<td class=\"fieldname\">" + r.expected_value + "</td>");
-					if (r.success.equals("ok"))
-						fw.write("<td  class=\"fieldname\">@image html success.png\n</td>");
+					fw.write("<tr><td class=\"fieldname\">" + r.name + "</td>"); 		
+					fw.write("<td class=\"fieldname\">" + r.actual_value + "</td>");	
+					fw.write("<td class=\"fieldname\">" + r.expected_value + "</td>");	
+					if (r.success != null)
+					{
+						if (r.success.equals("ok"))					
+							fw.write("<td  class=\"fieldname\">@image html success.png\n</td>");
+						else
+							fw.write("<td  class=\"fieldname\">@image html fail.png\n</td>");
+					}
 					else
-						fw.write("<td  class=\"fieldname\">@image html fail.png\n</td>");
-					
+						fw.write("<td  class=\"fieldname\"></td>");
+
 					fw.write("</tr>\n");
 				}
 				
 				fw.write("</table>\n\n");
+				
+				
 				///calltrace
 				if (ts.call_trace != null)
 				{
@@ -739,10 +773,19 @@ public class DetailsReportXml
 			}
 			
 		}
+
 		
 		fw.write("@page test-detail Detailed Test Reports\n");
 		fw.write(" +@subpage TestObject-" + testobject_name + "\n");
 		fw.write("*/");
+		
+		
+		
+		java.io.File f = new java.io.File(filename);
+		f.getParentFile().mkdir();
+		FileWriter ff = new FileWriter(f);
+		ff.write(fw.toString());
+		ff.close();
 		fw.close();
 	}
 	

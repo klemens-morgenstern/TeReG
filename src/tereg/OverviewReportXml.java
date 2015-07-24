@@ -2,6 +2,7 @@ package tereg;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.io.Writer;
 import java.util.List;
 
@@ -143,7 +144,7 @@ public class OverviewReportXml
 	}
 	public void writeDox(String filename, String pic_path) throws IOException
 	{
-		FileWriter fw = new FileWriter(filename);
+		StringWriter fw = new StringWriter();
 		fw.write("/**");
 		String id_ = selected_objects.selected_object.name.replace("/", "_");
 		fw.write("@page " + id_ + " Overview of " + selected_objects.selected_object.name + "\n");
@@ -207,7 +208,14 @@ public class OverviewReportXml
 		fw.write(" + @subpage " + selected_objects.selected_object.name.replace("/", "_") + "\n");
 		
 		fw.write("*/");
+		
+		java.io.File f = new java.io.File(filename);
+		f.getParentFile().mkdir();
+		FileWriter ff = new FileWriter(f);
+		ff.write(fw.toString());
+		ff.close();
 		fw.close();
+		
 	}
 
 	static class StatisticBuilder 
