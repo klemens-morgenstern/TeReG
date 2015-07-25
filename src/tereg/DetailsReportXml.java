@@ -662,13 +662,13 @@ public class DetailsReportXml
 				{
 					fw.write("@code{.c}\n");
 					fw.write(s.head);
-					fw.write("@endcode\n");
+					fw.write("\n@endcode\n");
 				}
 				if (s.body != null)
 				{
 					fw.write("@code{.c}\n");
 					fw.write(s.body);
-					fw.write("@endcode\n");
+					fw.write("\n@endcode\n");
 				}
 		}
 		

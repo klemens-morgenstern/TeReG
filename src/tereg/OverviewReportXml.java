@@ -162,7 +162,7 @@ public class OverviewReportXml
 		fw.write("</table>");
 
 		
-		fw.write("@image " + id_ + "_overall.png\n<center><i>Overall test results</i></center>\n\n");
+		fw.write("@image html " + id_ + "_overall.png\n<center><i>Overall test results</i></center>\n\n");
 		
 		fw.write("@section " + id_ + "-Cov Satistics\n");
 		
@@ -227,6 +227,9 @@ public class OverviewReportXml
 		PassBar mcdc 	 = new PassBar();
 		PassBar mcc 	 = new PassBar();
 		
+		int overall_pass 	 = 0;
+		int overall_fail 	 = 0;
+		int overall_not_exec = 0;
 		void writePlots(String prefix) throws IOException
 		{
 			execution.	chartToFile("", prefix + "_execution.png");
@@ -235,6 +238,10 @@ public class OverviewReportXml
 			decision.	chartToFile("", prefix + "_decision.png");
 			mcdc.		chartToFile("", prefix + "_mcdc.png");
 			mcc.		chartToFile("", prefix + "_mcc.png");
+			
+			PassPie.makeChart(prefix + "_overall.png", overall_pass, overall_not_exec, overall_fail);
+			
+			
 		}
 		
 		void execute(Writer wr, List<Tessyobject> tos, Integer[] cnt) throws IOException
@@ -258,6 +265,10 @@ public class OverviewReportXml
 								Double.parseDouble(to.testcase_statistics.notexecuted), 
 								Double.parseDouble(to.testcase_statistics.notok));
 
+					overall_pass += 	Integer.parseInt(to.testcase_statistics.ok);
+					overall_not_exec += Integer.parseInt(to.testcase_statistics.notexecuted); 
+					overall_fail +=		Integer.parseInt(to.testcase_statistics.notok);
+					
 					c0.addBar(cnt[0].toString(), to.coverage.c0.reached, 0, to.coverage.c0.notreached);
 					c1.addBar(cnt[0].toString(), to.coverage.c1.reached, 0, to.coverage.c1.notreached);
 					decision.addBar(cnt[0].toString(), to.coverage.dc.reached, 0, to.coverage.dc.notreached);
